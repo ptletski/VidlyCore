@@ -1,0 +1,39 @@
+﻿@* /Volumes/MacInternalHD/Development/VisualStudio/UdemyMVC/Vidly/VidlyApp/Views/Customers/Details.cshtml *@
+
+@model VidlyCoreApp.ViewModels.CustomerDetailsViewModel
+
+@{
+    ViewBag.Title = "Customer Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<br />
+@using (Model)
+{
+    <h2>@Model.GetCustomerName()</h2>
+
+    <ul>
+        <li>Is a @Model.GetMembershipName() Member</li>
+        @{
+            var birthDate = Model.GetBirthDate();
+
+            if (birthDate != null && birthDate.Length != 0)
+            {
+                <li>Date of Birth: @birthDate</li>
+            }
+        }
+        @{
+            if (Model.IsSubscribedToNewsletter() == true)
+            {
+                <li>Receives our Newsletter</li>
+            }
+            else
+            {
+                <li>Does not Receive our Newsletter</li>
+            }
+        }
+    </ul>
+    <br />
+    <input type="button" value="Update Customer Information" onclick="location.href='@Url.Action("Update", "Customers", new {id=@Model.GetCustomerId()})'" />
+}
+

@@ -1,0 +1,98 @@
+﻿@* /Volumes/MacInternalHD/Development/VisualStudio/UdemyMVC/VidlyCore/VidlyCoreApp/Views/Movies/MovieForm.cshtml *@
+
+@model VidlyCoreApp.ViewModels.MovieFormViewModel
+
+@{
+    ViewBag.Title = "Movie Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br />
+<br />
+@{
+    if (Model.Mode == VidlyCoreApp.ViewModels.CustomerFormViewModel.FormMode.New)
+    {
+        <h2>New Movie</h2>
+    }
+    else
+    {
+        <h2>Update Movie Information</h2>
+    }
+}
+
+@* leverage 'using' to IDispose object returned by Html.BeginForm *@
+@* Also, structure form so that Bootstrap can understand and render properly.*@
+@* Bootstrap requires this:  <div class="form-group"></div>*@
+@using (Html.BeginForm("Save", "Movies"))
+{
+    @Html.ValidationSummary()
+    <div class="form-group">
+        @Html.LabelFor(m => m.Title)
+        @* Use Bootstrap form-control look and feel. Note class is keyword so use '@'*@
+        @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Title)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Year)
+        @Html.TextBoxFor(m => m.Year, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Year)
+    </div>
+
+    <div class="form-group">
+        @{
+            @Html.LabelFor(m => m.MovieGenreId); @* control text label *@
+            var selectList = new SelectList(Model.GetAllGenreTypes(), "MovieGenreId", "MovieGenreName");
+            @Html.DropDownListFor(m => m.MovieGenreId, selectList, null, new { @class = "form-control" });
+            @Html.ValidationMessageFor(m => m.MovieGenreId)
+        }
+    </div>
+
+    <div class="form-group">
+        @{
+            @Html.LabelFor(m => m.MpaRatingId); @* control text label *@
+            selectList = new SelectList(Model.GetAllMpaRatingTypes(), "MpaRatingId", "MpaRatingName");
+            @Html.DropDownListFor(m => m.MpaRatingId, selectList, null, new { @class = "form-control" });
+            @Html.ValidationMessageFor(m => m.MpaRatingId)
+        }
+    </div>
+
+
+    if (Model.Mode == VidlyCoreApp.ViewModels.CustomerFormViewModel.FormMode.New)
+    {
+        <div class="form-group">
+            @{
+                @Html.LabelFor(m => m.ContentProviderId); @* control text label *@
+                selectList = new SelectList(Model.GetAllContentProviders(), "ContentProviderId", "ContentProviderName");
+                @Html.DropDownListFor(m => m.ContentProviderId, selectList, null, new { @class = "form-control" });
+                @Html.ValidationMessageFor(m => m.ContentProviderId)
+            }
+        </div>
+    }
+    else
+    {
+        <div class="form-group">
+            @{
+                @Html.LabelFor(m => m.ContentProviderId)
+                @Html.TextBox("ContentProviderId", Model.GetContentProvider(), new { @class = "form-control", @readonly = "" })
+            }
+        </div>
+    }
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.DateAdded)
+        @Html.TextBoxFor(m => m.DateAdded, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.DateAdded)
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Number Of Licenses")
+        @Html.TextBox("NumberOfLicenses", Model.GetNumberOfLicenses(), new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.NumberOfLicenses)
+    </div>
+    <br />
+    <br />
+    <br />
+    <button type="submit" class="btn btn-primary">Update Information</button>
+    <br />
+}

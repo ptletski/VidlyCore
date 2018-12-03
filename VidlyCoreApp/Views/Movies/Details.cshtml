@@ -1,0 +1,19 @@
+﻿@* /Volumes/MacInternalHD/Development/VisualStudio/UdemyMVC/VidlyCore/VidlyCoreApp/Views/Movies/Details.cshtml *@
+
+@model VidlyCoreApp.ViewModels.MovieDetailsViewModel
+
+@{
+    ViewBag.Title = "Movie Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.GetTitle()</h2>
+<ul>
+    <li>@Model.GetYear()</li>
+    <li>@Model.GetGenreName()</li>
+    <li>@Model.GetMpaRating()</li>
+    <li>@Model.GetDateAdded()</li>
+    <li>@Model.GetLicenseCount() Licenses</li>
+</ul>
+<br />
+<input type="button" value="Update Movie Information" onclick="location.href='@Url.Action("Update", "Movies", new {id=@Model.GetMovieId()})'" />

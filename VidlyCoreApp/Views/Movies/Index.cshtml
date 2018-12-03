@@ -1,0 +1,37 @@
+﻿@* /Volumes/MacInternalHD/Development/VisualStudio/UdemyMVC/VidlyCore/VidlyCoreApp/Views/Movies/Index.cshtml *@
+
+@model VidlyCoreApp.ViewModels.MoviesViewModel
+
+@{
+    ViewBag.Title = "Movies";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<br />
+<h2>Movies</h2>
+
+@using (Model)
+{
+    if (Model.IsAny == false)
+    {
+        <p>We don't have any movies yet.</p>
+    }
+    else
+    {
+        <table class="table">
+            <tr>
+                <th scope="col">Movie</th>
+                <th scope="col">Genre</th>
+            </tr>
+            @foreach (var movie in Model.Movies)
+            {
+                <tr>
+                    <td class="ezform"><a href="@Url.Action("Details", "Movies", new { id = movie.MovieId })">@movie.Title</a></td>
+                    <td>@Model.GetGenreName(movie)</td>
+                </tr>
+            }
+        </table>
+    }
+    <br />
+    <input type="button" value="Add New Movie" onclick="location.href='@Url.Action("New", "Movies")'" />
+}

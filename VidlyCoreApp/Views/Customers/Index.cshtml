@@ -1,0 +1,38 @@
+﻿@* /Volumes/MacInternalHD/Development/VisualStudio/UdemyMVC/VidlyCore/VidlyCoreApp/Views/Customers/Index.cshtml *@
+
+@model VidlyCoreApp.ViewModels.CustomersViewModel
+
+@{
+    ViewBag.Title = "Customers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<br />
+<h2>Customers</h2>
+
+@using (Model)
+{
+    if (Model.IsAny == false)
+    {
+        <p>We don't have any customers yet.</p>
+    }
+    else
+    {
+        <table class="table">
+            <tr>
+                <th scope="col">Customer</th>
+                <th scope="col">Membership</th>
+            </tr>
+            @foreach (var customer in Model.Customers)
+            {
+                <tr>
+                    <td class="ezform"><a href="@Url.Action("Details", "Customers", new { id = customer.CustomerId })">@customer.Name</a></td>
+                    <td align="left">@Model.GetDiscountRate(customer)%</td>
+                </tr>
+            }
+        </table>
+    }
+    <br />
+    <input type="button" value="Add New Customer" onclick="location.href='@Url.Action("New", "Customers")'" />
+
+}
