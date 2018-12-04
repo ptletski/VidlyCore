@@ -65,6 +65,7 @@ namespace VidlyCoreApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Save(CustomerFormViewModel viewModel)      /* /Customers/New CustomerForm submission, /Customers/Update CustomerForm submission */
         {
             try

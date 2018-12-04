@@ -90,6 +90,7 @@
         @Html.TextBox("NumberOfLicenses", Model.GetNumberOfLicenses(), new { @class = "form-control" })
         @Html.ValidationMessageFor(m => m.NumberOfLicenses)
     </div>
+    @Html.AntiForgeryToken()
     <br />
     <br />
     <br />

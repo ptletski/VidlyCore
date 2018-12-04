@@ -65,6 +65,7 @@ namespace VidlyCoreApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Save(MovieFormViewModel viewModel)         /* /Movies/New MovieForm submission, /Movies/Update MovieForm submission */
         {
             try

@@ -73,6 +73,7 @@
             @Html.CheckBoxFor(m => m.IsSubscribedToNewsletter) Subscribed to Newsletter?
         </label>
     </div>
+    @Html.AntiForgeryToken()
     <br />
     <br />
     <button type="submit" class="btn btn-primary">Update Information</button>
