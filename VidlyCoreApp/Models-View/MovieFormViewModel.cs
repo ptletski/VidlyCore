@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 using VidlyCoreApp.Models;
 
 namespace VidlyCoreApp.ViewModels
@@ -10,17 +12,30 @@ namespace VidlyCoreApp.ViewModels
     public class MovieFormViewModel : CommonViewModel
     {
         private int _contentProviderId = 0;
+        private bool _canUserModifyContentProvider;
+        private bool _canUserManageInventory;
 
         public MovieFormViewModel() : base()
         {
-            Mode = FormMode.New;
+            Mode = FormMode.Update;
+            _canUserModifyContentProvider = false;
+            _canUserManageInventory = false;
         }
 
-        public MovieFormViewModel(int movieId)
+        public MovieFormViewModel(ILogger logger, ClaimsPrincipal principal) : base(logger)
+        {
+            Mode = FormMode.New;
+            DetermineModifyContentProvider(principal);
+            DetermineManageInventory(principal);
+        }
+
+        public MovieFormViewModel(ILogger logger, ClaimsPrincipal principal, int movieId) : base(logger)
         {
             Mode = FormMode.Update;
+            DetermineModifyContentProvider(principal);
+            DetermineManageInventory(principal);
 
-            var movie = _dbContext.Movies.Single(m => m.MovieId == movieId);
+            var movie = _dbContext.Movies.Find(movieId);
 
             if (movie == null)
             {
@@ -33,16 +48,91 @@ namespace VidlyCoreApp.ViewModels
             MovieGenreId = movie.MovieGenreId;
             DateAdded = movie.DateAdded;
             InventoryControlId = movie.InventoryControlId;
+            MovieId = movie.MovieId;
         }
 
-        public MovieFormViewModel(MovieFormViewModel model)
+        public MovieFormViewModel(MovieFormViewModel model, ClaimsPrincipal principal) : base(model.Logger)
         {
+            DetermineModifyContentProvider(principal);
+            DetermineManageInventory(principal);
+
             this.Title = model.Title;
             this.Year = model.Year;
             this.MpaRatingId = model.MpaRatingId;
             this.MovieGenreId = model.MovieGenreId;
             this.DateAdded = model.DateAdded;
             this.InventoryControlId = model.InventoryControlId;
+            this.MovieId = model.MovieId;
+        }
+
+        private void DetermineModifyContentProvider(ClaimsPrincipal principal)
+        {
+            try
+            {
+                if (principal != null)
+                {
+                    _canUserModifyContentProvider = principal.Claims.Any(c => c.Type == "CanManageContentProviders");
+                }
+                else
+                {
+                    string message = "MovieFormViewModel:Principal not defined.";
+                    Debug.Assert(false, message);
+                    Logger.LogError(message, null);
+
+                    throw new Exception(message);
+                }
+            }
+            catch (Exception exception)
+            {
+                string message = "Failure evaluating claims on the principal for modifying content provider.";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
+
+                throw;
+            }
+        }
+
+        private void DetermineManageInventory(ClaimsPrincipal principal)
+        {
+            try
+            {
+                if (principal != null)
+                {
+                    _canUserManageInventory = principal.Claims.Any(c => c.Type == "CanManageInventory");
+                }
+                else
+                {
+                    string message = "MovieFormViewModel:Principal not defined.";
+                    Debug.Assert(false, "Principal not defined.");
+                    Logger.LogError(message, null);
+
+                    throw new Exception(message);
+                }
+            }
+            catch (Exception exception)
+            {
+                string message = "Failure evaluating claims on the principal for managing inventory.";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
+
+                throw;
+            }
+        }
+
+        public bool CanUserModifyContentProvider()
+        {
+            return _canUserModifyContentProvider;
+        }
+
+        public bool CanUserManageInventory()
+        {
+            return _canUserManageInventory;
         }
 
         [Required]
@@ -80,8 +170,12 @@ namespace VidlyCoreApp.ViewModels
                     }
                     catch(Exception exception)
                     {
-                        Debug.Assert(false, "Error Accessing InventoryControl Table");
+                        string message = "Error Accessing InventoryControl Table";
+
+                        Debug.Assert(false, message);
                         Debug.Assert(false, exception.Message);
+
+                        Logger.LogError(exception, message, null);
                     }
                 }
 
@@ -100,6 +194,8 @@ namespace VidlyCoreApp.ViewModels
 
         public int InventoryControlId { get; set; }
 
+        public int MovieId { get; set; }
+
         [Display(Name = "Number of Licenses")]
         [Required(ErrorMessage = "Enter the Number of Licenses")]
         public short? NumberOfLicenses { get; set; }
@@ -112,7 +208,7 @@ namespace VidlyCoreApp.ViewModels
             {
                 try
                 {
-                    var inventoryControlEntry = _dbContext.InventoryControl.Single(i => i.InventoryControlId == InventoryControlId);
+                    var inventoryControlEntry = _dbContext.InventoryControl.Find(InventoryControlId);
 
                     if (inventoryControlEntry != null)
                     {
@@ -121,10 +217,13 @@ namespace VidlyCoreApp.ViewModels
                 }
                 catch (Exception exception)
                 {
-                    Debug.Assert(false, "Exception Acessing InventoryControl Table");
-                    Debug.Assert(false, exception.Message);
-                }
+                    string message = "Exception Accessing InventoryControl Table";
 
+                    Debug.Assert(false, message);
+                    Debug.Assert(false, exception.Message);
+
+                    Logger.LogError(exception, message, null);
+                }
             }
 
             return count;
@@ -142,8 +241,12 @@ namespace VidlyCoreApp.ViewModels
             }
             catch (Exception exception)
             {
-                Debug.Assert(false, "Exception Accessing MovieGenres Table");
+                string message = "Exception Accessing MovieGenres Table";
+
+                Debug.Assert(false, message);
                 Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
             }
 
             return typeList;
@@ -162,8 +265,11 @@ namespace VidlyCoreApp.ViewModels
             }
             catch (Exception exception)
             {
-                Debug.Assert(false, "Exception Accessing MpaRatings Table");
+                string message = "Exception Accessing MpaRatings Table";
+                Debug.Assert(false, message);
                 Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
             }
 
             return typeList;
@@ -181,8 +287,12 @@ namespace VidlyCoreApp.ViewModels
             }
             catch (Exception exception)
             {
-                Debug.Assert(false, "Exception Accessing ContentProviders Table");
+                string message = "Exception Accessing ContentProviders Table";
+
+                Debug.Assert(false, message);
                 Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
             }
 
             return providerList;
@@ -190,13 +300,42 @@ namespace VidlyCoreApp.ViewModels
 
         public string GetContentProvider()
         {
-            var inventoryControl = _dbContext.InventoryControl.Find(InventoryControlId);
-            _contentProviderId = inventoryControl.ContentProviderId;
-            var contentProvider = _dbContext.ContentProviders.Find(_contentProviderId);
-            return contentProvider.ContentProviderName;
+            string provider = String.Empty;
+
+            try
+            {
+                var inventoryControl = _dbContext.InventoryControl.Find(InventoryControlId);
+                _contentProviderId = inventoryControl.ContentProviderId;
+
+                var contentProvider = _dbContext.ContentProviders.Find(_contentProviderId);
+                provider = contentProvider.ContentProviderName;
+            }
+            catch (Exception exception)
+            {
+                string message = "Exception Finding ContentProviders";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
+            }
+
+            return provider;
         }
 
-        public void SaveNewMovie()
+        public void Save()
+        {
+            if (MovieId != 0)
+            {
+                SaveExistingMovie();
+            }
+            else
+            {
+                SaveNewMovie();
+            }
+        }
+
+        private void SaveNewMovie()
         {   // Two transactions. 
             // First: Create movie with 0 InventoryControlId.
             // Second: Create Inventory entry with usage count and content provider.
@@ -204,55 +343,86 @@ namespace VidlyCoreApp.ViewModels
             // Business Process: Add ContentProvider if needed, 
             //  then add Movie with "Number of Licenses",
             //  then add InventoryControl
-            Movie movie = new Movie();
+            try
+            {
+                Movie movie = new Movie
+                {
+                    Title = Title,
+                    Year = Year ?? 0,
+                    MpaRatingId = MpaRatingId,
+                    MovieGenreId = MovieGenreId,
+                    DateAdded = DateAdded ?? new DateTime(1, 1, 1),
+                    ActiveUseCount = 0,
+                    InventoryControlId = 0
+                };
 
-            movie.Title = Title;
-            movie.Year = Year ?? 0;
-            movie.MpaRatingId = MpaRatingId;
-            movie.MovieGenreId = MovieGenreId;
-            movie.DateAdded = DateAdded ?? new DateTime(1,1,1);
-            movie.ActiveUseCount = 0;
-            movie.InventoryControlId = 0;
+                _dbContext.Movies.Add(movie);
+                _dbContext.SaveChanges();
 
-            _dbContext.Movies.Add(movie);
-            _dbContext.SaveChanges();
+                // Update Inventory
+                Movie updatedMovie = _dbContext.Movies.Single(m => (
+                    m.Title == movie.Title &&
+                    m.Year == movie.Year &&
+                    m.MpaRatingId == movie.MpaRatingId &&
+                    m.MovieGenreId == movie.MovieGenreId));
 
-            // Update Inventory
-            Movie updatedMovie = _dbContext.Movies.Single(m => (
-                m.Title == movie.Title && 
-                m.Year == movie.Year && 
-                m.MpaRatingId == movie.MpaRatingId && 
-                m.MovieGenreId == movie.MovieGenreId));
-            InventoryControlEntry inventoryControl = new InventoryControlEntry();
+                InventoryControlEntry inventoryControl = new InventoryControlEntry
+                {
+                    ContentProviderId = _contentProviderId,
+                    PermittedUsageCount = NumberOfLicenses ?? 0,
+                    MovieId = updatedMovie.MovieId
+                };
 
-            inventoryControl.ContentProviderId = _contentProviderId;
-            inventoryControl.PermittedUsageCount = NumberOfLicenses ?? 0;
-            inventoryControl.MovieId = updatedMovie.MovieId;
+                _dbContext.InventoryControl.Add(inventoryControl);
 
-            _dbContext.InventoryControl.Add(inventoryControl);
+                // Reflect in Movie
+                updatedMovie.InventoryControlId = updatedMovie.MovieId; // update
 
-            // Reflect in Movie
-            updatedMovie.InventoryControlId = updatedMovie.MovieId; // update
+                _dbContext.Movies.Update(updatedMovie);
+                _dbContext.SaveChanges();
+            }
+            catch(Exception exception)
+            {
+                string message = "Exception Saving New Movie";
 
-            _dbContext.Movies.Update(updatedMovie);
-            _dbContext.SaveChanges();
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
+
+                throw;
+            }
         }
 
-        public void SaveExistingMovie(int id)
+        private void SaveExistingMovie()
         {
-            var movieInDb = _dbContext.Movies.Single(m => m.MovieId == id);
+            try
+            {
+                var movieInDb = _dbContext.Movies.Find(MovieId);
 
-            movieInDb.Title = Title;
-            movieInDb.Year = Year ?? 0;
-            movieInDb.MpaRatingId = MpaRatingId;
-            movieInDb.MovieGenreId = MovieGenreId;
-            movieInDb.DateAdded = DateAdded ?? new DateTime(1,1,1);
+                movieInDb.Title = Title;
+                movieInDb.Year = Year ?? 0;
+                movieInDb.MpaRatingId = MpaRatingId;
+                movieInDb.MovieGenreId = MovieGenreId;
+                movieInDb.DateAdded = DateAdded ?? new DateTime(1, 1, 1);
 
-            var inventoryControl = _dbContext.InventoryControl.Single(i => i.InventoryControlId == movieInDb.InventoryControlId);
+                var inventoryControl = _dbContext.InventoryControl.Find(movieInDb.InventoryControlId);
 
-            inventoryControl.PermittedUsageCount = NumberOfLicenses ?? 0;
+                inventoryControl.PermittedUsageCount = NumberOfLicenses ?? 0;
 
-            _dbContext.SaveChanges();
+                _dbContext.SaveChanges();
+            }
+            catch (Exception exception)
+            {
+                string message = "Exception Updating Existing Movie";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
+
+                throw;
+            }
         }
     }
 }

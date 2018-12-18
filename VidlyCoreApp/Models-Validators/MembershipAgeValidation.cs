@@ -15,7 +15,7 @@ namespace VidlyCoreApp.ViewModels
         {
             try
             {
-                var customer = (CustomerFormViewModel)validationContext.ObjectInstance;
+                CustomerFormViewModel customer = (CustomerFormViewModel)validationContext.ObjectInstance;
                 MembershipAgeRequirements ageRequirements = new MembershipAgeRequirements();
                 BusinessRulesResult rulesResult = ageRequirements.IsCustomerAgeAcceptable(customer.MembershipTypeId, customer.BirthDate);
 
@@ -24,13 +24,22 @@ namespace VidlyCoreApp.ViewModels
                     : ValidationResult.Success;
 
             }
-            catch(Exception exception)
+            catch (InvalidCastException exception)
             {
-                Debug.Assert(false, "MembershipAgeValidation use is relegated to CustomerFormViewModel");
-                Debug.Assert(false, exception.Message);
-            }
+                string message = "MembershipAgeValidation use is relegated to CustomerFormViewModel.";
 
-            return new ValidationResult("Attrbiute usage applies only to type CustomerFormViewModel");
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                throw new ValidationException(message);
+            }
+            catch (Exception exception)
+            {
+                Debug.Assert(false, "MembershipAgeValidation unknown exception.");
+                Debug.Assert(false, exception.Message);
+
+                throw;
+            }
         }
     }
 }

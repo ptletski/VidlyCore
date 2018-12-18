@@ -1,0 +1,37 @@
+﻿@* /Volumes/MacInternalHD/Development/VisualStudio/UdemyMVC/VidlyCore/VidlyCoreApp/Views/ContentProviders/Index.cshtml *@
+
+@model VidlyCoreApp.ViewModels.ContentProvidersViewModel
+
+@{
+    ViewData["Title"] = "Content Providers";
+    Layout = "_Layout";
+}
+<br />
+<br />
+<h2>Inventory Control</h2>
+
+@using (Model)
+{
+    if (Model.IsAny == false)
+    {
+        <p>We don't have any content providers yet.</p>
+    }
+    else
+    {
+        <table class="table">
+            <tr>
+                <th scope="col">Content Provider</th>
+                <th scope="col">Contract Reference</th>
+            </tr>
+            @foreach (var entry in Model.ContentProviders)
+            {
+                <tr>
+                    <td>@entry.ContentProviderName</td>
+                    <td>@entry.ContractReference</td>
+                </tr>
+            }
+        </table>
+    }
+    <br />
+    <input type="button" value="Add New Inventory Control Entry" onclick="location.href='@Url.Action("New", "Inventory")'" />
+}

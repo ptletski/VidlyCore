@@ -1,0 +1,39 @@
+﻿@* /Volumes/MacInternalHD/Development/VisualStudio/UdemyMVC/VidlyCore/VidlyCoreApp/Views/Inventory/Index.cshtml *@
+
+@model VidlyCoreApp.ViewModels.InventoryViewModel
+
+@{
+    ViewData["Title"] = "Inventory Control";
+    Layout = "_Layout";
+}
+<br />
+<br />
+<h2>Inventory Control</h2>
+
+@using (Model)
+{
+    if (Model.IsAny == false)
+    {
+        <p>We don't have any inventory to control yet.</p>
+    }
+    else
+    {
+        <table class="table">
+            <tr>
+                <th scope="col">Movie Title</th>
+                <th scope="col">Content Provider</th>
+                <th scope="col">Permitted Use Count</th>
+            </tr>
+            @foreach (var entry in Model.Inventory)
+            {
+                <tr>
+                    <td>@entry.MovieName</td>
+                    <td>@entry.ContentProviderName</td>
+                    <td>@entry.PermittedUsageCount</td>
+                </tr>
+            }
+        </table>
+    }
+    <br />
+    <input type="button" value="Add New Inventory Control Entry" onclick="location.href='@Url.Action("New", "Inventory")'" />
+}

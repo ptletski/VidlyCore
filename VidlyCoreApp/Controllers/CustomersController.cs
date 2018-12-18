@@ -1,67 +1,70 @@
 ﻿using System;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using VidlyCoreApp.ViewModels;
 
 namespace VidlyCoreApp.Controllers
 {
-    public class CustomersController : VidlyControllerBase
+    [Authorize("CanManageCustomers")]
+    public class CustomersController : AppBaseController
     {
-        public CustomersController() : base()
+        public CustomersController(ILogger<CustomersController> logger) : base(logger)
         {
         }
 
         public IActionResult Index()                                    /* /Customers */
         {
-            return View(new CustomersViewModel());
+            return View(new CustomersViewModel(Logger));
         }
 
         public IActionResult Details(int id)                            /* /Customers/Id */
         {
-            RemoveCookie("Customer");
-            SetCookie("Customer", id.ToString());
-
-            IActionResult r = NotFound();
-
             try
             {
-                var model = new CustomerDetailsViewModel();
-                var isValid = model.Initialize(id);
+                CustomerDetailsViewModel model = new CustomerDetailsViewModel(Logger);
+                bool isValid = model.Initialize(id);
 
                 if (isValid)
                 {
-                    r = View(model);
+                    return View(model);
                 }
-            }
-            catch(Exception e)
-            {   // EventSource to replace in v2.2 Asp.Net Core
-                Debug.Assert(false, "Customer Details Initialation Exception");
-                Debug.Assert(false, e.Message);
-            }
 
-            return r;
+                return RedirectToAction("ApplicationError", "Landing");
+            }
+            catch(Exception exception)
+            {   
+                Debug.Assert(false, "Customer Details Initialization Exception");
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, "Exception in CustomersController:Details. Directing user with AppError result", null);
+
+                return RedirectToAction("ApplicationError", "Landing");
+            }
         }
 
         public IActionResult Update(int id)                             /* /Customers/Details/id update customer information */
         {
             try
             {
-                var model = new CustomerFormViewModel(id);
+                CustomerFormViewModel model = new CustomerFormViewModel(Logger, id);
                 return View("CustomerForm", model);
             }
-            catch(Exception e)
+            catch(Exception exception)
             {
                 Debug.Assert(false, "CustomerFormViewModel Couldn't Locate Customer(id)");
-                Debug.Assert(false, e.Message);
+                Debug.Assert(false, exception.Message);
 
-                return View();
+                Logger.LogError(exception, "Exception in CustomersController:Update. Directing user with AppError result", null);
+
+                return RedirectToAction("ApplicationError", "Landing");
             }
         }
 
         public IActionResult New()                                      /* /Customers/New */
         {
-            RemoveCookie("Customer");
-            return View("CustomerForm", new CustomerFormViewModel());
+            return View("CustomerForm", new CustomerFormViewModel(Logger));
         }
 
         [HttpPost]
@@ -77,23 +80,17 @@ namespace VidlyCoreApp.Controllers
                 }
                 else
                 {
-                    string cookieValue = GetCookie("Customer");
-
-                    if (cookieValue != null)
-                    {
-                        int customerId = int.Parse(cookieValue);
-                        viewModel.SaveExistingCustomer(customerId);
-                    }
-                    else
-                    {
-                        viewModel.SaveNewCustomer();
-                    }
+                    viewModel.Save();
                 }
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
                 Debug.Assert(false, "Could Not Save Customer Form");
-                Debug.Assert(false, e.Message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, "Exception in CustomersController:Save. Directing user with AppError result", null);
+
+                return RedirectToAction("ApplicationError", "Landing");
             }
 
             return RedirectToAction("Index", "Customers");

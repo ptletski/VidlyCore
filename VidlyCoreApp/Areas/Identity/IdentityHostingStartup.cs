@@ -14,7 +14,8 @@ namespace VidlyCoreApp.Areas.Identity
     public class IdentityHostingStartup : IHostingStartup
     {
         public void Configure(IWebHostBuilder builder)
-        {
+        {   // Moved to Startup.cs
+            /*
             builder.ConfigureServices((context, services) => {
                 services.AddDbContext<VidlyDbContext>(options =>
                     options.UseSqlite("Data Source=vidly.db"));
@@ -24,8 +25,9 @@ namespace VidlyCoreApp.Areas.Identity
                 //services.AddIdentity<IdentityUser, IdentityRole>()
                  // services.AddDefaultIdentity<IdentityUser>()
                  //.AddEntityFrameworkStores<VidlyDbContext>()
-                 .AddDefaultTokenProviders();
+                 .AddDefaultTokenProviders();            
             });
+            */
         }
     }
 }

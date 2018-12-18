@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using VidlyCoreApp.Models;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace VidlyCoreApp.ViewModels
 {
@@ -11,14 +12,19 @@ namespace VidlyCoreApp.ViewModels
     {
         public CustomerFormViewModel() : base()
         {
+            Mode = FormMode.Update;
+        }
+                  
+        public CustomerFormViewModel(ILogger logger) : base(logger)
+        {
             Mode = FormMode.New;
         }
 
-        public CustomerFormViewModel(int customerId) : base()
+        public CustomerFormViewModel(ILogger logger, int customerId) : base(logger)
         {
             Mode = FormMode.Update;
 
-            var customer = _dbContext.Customers.SingleOrDefault(c => c.CustomerId == customerId);
+            var customer = _dbContext.Customers.Find(customerId);
 
             if (customer == null)
             {
@@ -35,7 +41,7 @@ namespace VidlyCoreApp.ViewModels
             CustomerId = customer.CustomerId;
         }
 
-        public CustomerFormViewModel(CustomerFormViewModel model)
+        public CustomerFormViewModel(CustomerFormViewModel model) : base(model.Logger)
         {
             this.Name = model.Name;
             this.MembershipTypeId = model.MembershipTypeId;
@@ -83,45 +89,90 @@ namespace VidlyCoreApp.ViewModels
                 list.Insert(0, new MembershipType { MembershipTypeId = 0, MembershipName = "Select a Membership" });
                 typeList = (list as IEnumerable<MembershipType>);
             }
-            catch(Exception e)
+            catch(Exception exception)
             {
-                Debug.Assert(false, "Exception Accesing MembershipTypes Table");
-                Debug.Assert(false, e.Message);
+                string message = "Exception Accesing MembershipTypes Table";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
             }
 
             return typeList;
         }
 
-        public void SaveNewCustomer()
+        public void Save()
         {
-            VidlyCoreApp.Models.Customer customer = new VidlyCoreApp.Models.Customer();
-
-            customer.Name = this.Name;
-            customer.Address = this.Address;
-            customer.City = this.City;
-            customer.State = this.State;
-            customer.BirthDate = this.BirthDate;
-            customer.MembershipTypeId = this.MembershipTypeId;
-            customer.IsSubscribedToNewsletter = this.IsSubscribedToNewsletter;
-
-            _dbContext.Customers.Add(customer);
-            _dbContext.SaveChanges();
+            if (CustomerId != 0)
+            {
+                SaveExistingCustomer();
+            }
+            else
+            {
+                SaveNewCustomer();
+            }
         }
 
-        public void SaveExistingCustomer(int id)
+        private void SaveNewCustomer()
         {
-            var customerInDb = _dbContext.Customers.Single(c => c.CustomerId == id);
+            try
+            {
+                VidlyCoreApp.Models.Customer customer = new VidlyCoreApp.Models.Customer
+                {
+                    Name = this.Name,
+                    Address = this.Address,
+                    City = this.City,
+                    State = this.State,
+                    BirthDate = this.BirthDate,
+                    MembershipTypeId = this.MembershipTypeId,
+                    IsSubscribedToNewsletter = this.IsSubscribedToNewsletter
+                };
 
-            customerInDb.Name = this.Name;
-            customerInDb.Address = this.Address;
-            customerInDb.City = this.City;
-            customerInDb.State = this.State;
-            customerInDb.BirthDate = this.BirthDate;
-            customerInDb.MembershipTypeId = this.MembershipTypeId;
-            customerInDb.IsSubscribedToNewsletter = this.IsSubscribedToNewsletter;
-            customerInDb.CustomerId = id;
+                _dbContext.Customers.Add(customer);
+                _dbContext.SaveChanges();
+            }
+            catch (Exception exception)
+            {
+                string message = "Exception Updating Existing Customer";
 
-            _dbContext.SaveChanges();
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
+
+                throw;
+            }
+        }
+
+        private void SaveExistingCustomer()
+        {
+            try
+            {
+                var customerInDb = _dbContext.Customers.Find(CustomerId);
+
+                customerInDb.Name = this.Name;
+                customerInDb.Address = this.Address;
+                customerInDb.City = this.City;
+                customerInDb.State = this.State;
+                customerInDb.BirthDate = this.BirthDate;
+                customerInDb.MembershipTypeId = this.MembershipTypeId;
+                customerInDb.IsSubscribedToNewsletter = this.IsSubscribedToNewsletter;
+                customerInDb.CustomerId = this.CustomerId;
+
+                _dbContext.SaveChanges();
+            }
+            catch (Exception exception)
+            {
+                string message = "Exception Updating Existing Customer";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
+
+                throw;
+            }
         }
     }
 }

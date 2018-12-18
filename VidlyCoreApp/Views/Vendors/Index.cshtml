@@ -1,0 +1,37 @@
+﻿@* /Volumes/MacInternalHD/Development/VisualStudio/UdemyMVC/VidlyCore/VidlyCoreApp/Views/Vendors/Index.cshtml *@
+
+@model VidlyCoreApp.ViewModels.VendorsViewModel
+
+@{
+    ViewData["Title"] = "Vendors";
+    Layout = "_Layout";
+}
+<br />
+<br />
+<h2>Vendors</h2>
+
+@using (Model)
+{
+    if (Model.IsAny == false)
+    {
+        <p>We don't have any vendors yet.</p>
+    }
+    else
+    {
+        <table class="table">
+            <tr>
+                <th scope="col">Content Provider</th>
+                <th scope="col">Contract Reference</th>
+            </tr>
+            @foreach (var entry in Model.Vendors)
+            {
+                <tr>
+                    <td>@entry.ContentProviderName</td>
+                    <td>@entry.ContractReference</td>
+                </tr>
+            }
+        </table>
+    }
+    <br />
+    <input type="button" value="Add New Content Provider" onclick="location.href='@Url.Action("New", "Vendors")'" />
+}

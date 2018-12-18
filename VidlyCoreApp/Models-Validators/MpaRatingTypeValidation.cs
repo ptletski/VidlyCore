@@ -7,7 +7,7 @@ namespace VidlyCoreApp.ViewModels
 {
     public class MpaRatingTypeValidation : ValidationAttribute
     {
-        public MpaRatingTypeValidation()
+        public MpaRatingTypeValidation() : base()
         {
         }
 
@@ -17,17 +17,26 @@ namespace VidlyCoreApp.ViewModels
             {
                 var movie = (MovieFormViewModel)validationContext.ObjectInstance;
 
-                return (movie.MovieGenreId == MpaRating.Prompt)
+                return (movie.MpaRatingId == MpaRating.Prompt)
                     ? new ValidationResult("Select MPA Rating")
                     : ValidationResult.Success;
             }
+            catch (InvalidCastException exception)
+            {
+                string message = "MpaRatingTypeValidation use is relegated to MovieFormViewModel.";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                throw new ValidationException(message);
+            }
             catch (Exception exception)
             {
-                Debug.Assert(false, "MpaRatingTypeValidation use is relegated to MovieFormViewModel");
+                Debug.Assert(false, "MpaRatingTypeValidation uknown exception.");
                 Debug.Assert(false, exception.Message);
-            }
 
-            return new ValidationResult("Attribute usage applies only to type MovieFormViewModel");
+                throw;
+            }
         }
     }
 }

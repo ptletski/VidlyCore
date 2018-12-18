@@ -73,6 +73,7 @@
             @Html.CheckBoxFor(m => m.IsSubscribedToNewsletter) Subscribed to Newsletter?
         </label>
     </div>
+    @Html.HiddenFor(m => m.CustomerId)
     @Html.AntiForgeryToken()
     <br />
     <br />
@@ -81,7 +82,7 @@
 }
 
 @section Scripts {
-    @* In regards to Client Side Validation, this requries adding jquery to the page. *@
+    @* In regards to Client Side Validation, this requries adding jQuery to the page. *@
     @* This can be done by adding the default validation scripting provided in _ValidationScriptsPartial.cshtml. *@
     @* Visual Studio suggests using <partial> instead of Html.Partial due to "possiblity of deadlocks". *@
     @* This technique of Client Side Validation works for situations where standard validation annotations are used. *@

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using VidlyCoreApp.Models;
 
 namespace VidlyCoreApp.ViewModels
@@ -8,9 +9,12 @@ namespace VidlyCoreApp.ViewModels
     {
         public enum FormMode { New, Update };
         protected VidlyDbContext _dbContext;
+        private ILogger _logger;
 
-        public CommonViewModel()
+        protected CommonViewModel(ILogger logger = null)
         {
+            _logger = logger;
+
             InitializeDbContext();
         }
 
@@ -20,6 +24,12 @@ namespace VidlyCoreApp.ViewModels
             optionsBuilder.UseSqlite("Data Source=vidly.db");
 
             _dbContext = new VidlyDbContext(optionsBuilder.Options);
+        }
+
+        public ILogger Logger
+        {
+            get => _logger;
+            set => _logger = value; 
         }
 
         public FormMode Mode { get; set; }

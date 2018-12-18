@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace VidlyCoreApp.Models
 {
     public class ContentProvider
-    {
+    {   // Only used in data-seeding. See Migrations.
         public static readonly byte Prompt = 0;
         public static readonly byte SonyMotionPictures = 1;
         public static readonly byte UnitedArtists = 2;

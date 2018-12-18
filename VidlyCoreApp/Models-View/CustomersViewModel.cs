@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using VidlyCoreApp.Models;
 
 namespace VidlyCoreApp.ViewModels
 {
     public class CustomersViewModel : CommonViewModel
     {
-        public CustomersViewModel() : base()
+        public CustomersViewModel(ILogger logger) : base(logger)
         {
         }
 
@@ -16,8 +17,21 @@ namespace VidlyCoreApp.ViewModels
         {
             get
             {
-                var customers = _dbContext.Customers;
-                return customers;
+                try
+                {
+                    return _dbContext.Customers;
+                }
+                catch(Exception exception)
+                {
+                    string message = "Failure listing Customers.";
+
+                    Debug.Assert(false, message);
+                    Debug.Assert(false, exception.Message);
+
+                    Logger.LogError(exception, message, null);
+
+                    throw;
+                }
             }
         }
 
@@ -32,10 +46,14 @@ namespace VidlyCoreApp.ViewModels
                     List<Customer> list = Customers.ToList();
                     isAny = list.Any();
                 }
-                catch (Exception e)
+                catch (Exception exception)
                 {
-                    Debug.Assert(false, "CustomersViewModel Failed IsAny Action");
-                    Debug.Assert(false, e.Message);
+                    string message = "CustomersViewModel Failed IsAny Action";
+
+                    Debug.Assert(false, message);
+                    Debug.Assert(false, exception.Message);
+
+                    Logger.LogError(exception, message, null);
                 }
 
                 return isAny;
@@ -48,12 +66,16 @@ namespace VidlyCoreApp.ViewModels
 
             try
             {
-                customer = _dbContext.Customers.SingleOrDefault(c => c.CustomerId == id);
+                customer = _dbContext.Customers.Find(id);
             }
-            catch(Exception e)
+            catch(Exception exception)
             {
-                Debug.Assert(false, "CustomersViewModel Failed Find Action");
-                Debug.Assert(false, e.Message);
+                string message = "CustomersViewModel Failed Find Action";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
             }
 
             return customer;
@@ -68,10 +90,14 @@ namespace VidlyCoreApp.ViewModels
                 byte membershipType = customer.MembershipTypeId;
                 rate = _dbContext.MembershipTypes.Find(membershipType).DiscountRate;
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Debug.Assert(false, "CustomersViewModel Failed GetDiscountRate Action");
-                Debug.Assert(false, e.Message);
+                string message = "CustomersViewModel Failed GetDiscountRate Action";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
             }
 
             return rate;

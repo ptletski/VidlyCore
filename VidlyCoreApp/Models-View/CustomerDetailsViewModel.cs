@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using VidlyCoreApp.Models;
 
 namespace VidlyCoreApp.ViewModels
@@ -9,15 +10,29 @@ namespace VidlyCoreApp.ViewModels
     {
         private Customer _customer;
 
-        public CustomerDetailsViewModel() : base()
+        public CustomerDetailsViewModel(ILogger logger) : base(logger)
         {
         }
 
         public bool Initialize(int customerId)
         {
-            _customer = _dbContext.Customers.SingleOrDefault(c => c.CustomerId == customerId);
+            try
+            {
+                _customer = _dbContext.Customers.Single(c => c.CustomerId == customerId);
+            }
+            catch(Exception exception)
+            {
+                string message = "Failure Initializing Customer Via EF";
 
-            return (_customer == null) ? false : true;
+                Debug.Assert(false, "Failure Initializing Customer Via EF");
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
+
+                throw;
+            }
+
+            return (_customer != null);
         }
 
         public string GetCustomerName()
@@ -34,10 +49,14 @@ namespace VidlyCoreApp.ViewModels
                 byte membershipType = _customer.MembershipTypeId;
                 name = _dbContext.MembershipTypes.Find(membershipType).MembershipName;
             }
-            catch(Exception e)
+            catch(Exception exception)
             {
-                Debug.Assert(false, "CustomerDetaulsViewModel Failed During Finding Membership Name");
-                Debug.Assert(false, e.Message);
+                string message = "CustomerDetaulsViewModel Failed During Finding Membership Name";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                Logger.LogError(exception, message, null);
             }
 
             return name;

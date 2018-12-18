@@ -18,5 +18,12 @@
   <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="Models-View\" />
+    <Folder Include="Views\Inventory\" />
+    <Folder Include="Views\Vendors\" />
+    <Folder Include="Views\ContentProviders\" />
+    <Folder Include="Models-Validators\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Controllers\VidlyBaseController.cs" />
   </ItemGroup>
 </Project>

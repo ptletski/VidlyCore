@@ -15,19 +15,28 @@ namespace VidlyCoreApp.ViewModels
         {
             try
             {
-                var customer = (CustomerFormViewModel)validationContext.ObjectInstance;
+                CustomerFormViewModel customer = (CustomerFormViewModel)validationContext.ObjectInstance;
 
                 return (customer.MembershipTypeId == MembershipType.Prompt)
                     ? new ValidationResult("Select a Membership")
                     : ValidationResult.Success;
             }
+            catch (InvalidCastException exception)
+            {
+                string message = "MembershipTypeValidation use is relegated to CustomerFormViewModel.";
+
+                Debug.Assert(false, message);
+                Debug.Assert(false, exception.Message);
+
+                throw new ValidationException(message);
+            }
             catch (Exception exception)
             {
-                Debug.Assert(false, "MembershipTypeValidation use is relegated to CustomerFormViewModel");
+                Debug.Assert(false, "MembershipTypeValidation unknown exception.");
                 Debug.Assert(false, exception.Message);
-            }
 
-            return new ValidationResult("Attribute usage applies only to type CustomerFormViewModel");
+                throw;
+            }
         }
     }
 }

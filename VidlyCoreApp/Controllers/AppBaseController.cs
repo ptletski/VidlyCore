@@ -1,14 +1,22 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace VidlyCoreApp.Controllers
 {
-	public class VidlyControllerBase : Controller
+    public class AppBaseController : Controller
     {
-        public VidlyControllerBase()
+        private readonly ILogger _logger;
+        private string _message;
+
+        public AppBaseController(ILogger logger) : base()
         {
+            _logger = logger;
         }
+
+        protected ILogger Logger { get => _logger; }
+        protected string Message { get => _message; set => _message = value; }
 
         protected void SetCookie(string key, string value)
         {
@@ -30,7 +38,5 @@ namespace VidlyCoreApp.Controllers
         {
             Response.Cookies.Delete(key);
         }
-
-
     }
 }

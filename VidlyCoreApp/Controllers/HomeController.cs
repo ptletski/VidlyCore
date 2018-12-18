@@ -1,17 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using VidlyCoreApp.Models;
 
 namespace VidlyCoreApp.Controllers
 {
-    public class HomeController : Controller
+    [AllowAnonymous]
+    public class HomeController : AppBaseController
     {
+        public HomeController(ILogger<HomeController> logger) : base(logger)
+        {
+        }
+
         public IActionResult Index()
         {
+            Message = $"About page visited at {DateTime.UtcNow.ToLongTimeString()}";
+            Logger.LogInformation("Message displayed: {Message}", Message);
+
             if (this.User.Identity.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Landing");

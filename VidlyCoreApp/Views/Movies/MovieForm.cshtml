@@ -57,14 +57,13 @@
         }
     </div>
 
-
-    if (Model.Mode == VidlyCoreApp.ViewModels.CustomerFormViewModel.FormMode.New)
+    @if (Model.CanUserModifyContentProvider() == true)
     {
         <div class="form-group">
             @{
                 @Html.LabelFor(m => m.ContentProviderId); @* control text label *@
                 selectList = new SelectList(Model.GetAllContentProviders(), "ContentProviderId", "ContentProviderName");
-                @Html.DropDownListFor(m => m.ContentProviderId, selectList, null, new { @class = "form-control" });
+                @Html.DropDownListFor(m => m.ContentProviderId, selectList, null, new { @class = "form-control" })
                 @Html.ValidationMessageFor(m => m.ContentProviderId)
             }
         </div>
@@ -72,24 +71,40 @@
     else
     {
         <div class="form-group">
-            @{
-                @Html.LabelFor(m => m.ContentProviderId)
-                @Html.TextBox("ContentProviderId", Model.GetContentProvider(), new { @class = "form-control", @readonly = "" })
-            }
+            @Html.Label("Content Provider") @* control text label *@
+            @Html.TextBox("ContentProvider", Model.GetContentProvider(), new { @class = "form-control", @readonly = "" })
+        </div>
+        @Html.HiddenFor(m => m.ContentProviderId)
+    }
+    
+    if (Model.CanUserManageInventory())
+    {
+        <div class="form-group">
+            @Html.LabelFor(m => m.DateAdded)
+            @Html.TextBoxFor(m => m.DateAdded, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.DateAdded)
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Number Of Licenses")
+            @Html.TextBox("NumberOfLicenses", Model.GetNumberOfLicenses(), new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.NumberOfLicenses)
         </div>
     }
+    else
+    {
+        <div class="form-group">
+            @Html.Label("Date Added to Inventory")
+            @Html.TextBox("DateAdded", Model.DateAdded, new { @class = "form-control", @readonly = "" })
+        </div>
 
-    <div class="form-group">
-        @Html.LabelFor(m => m.DateAdded)
-        @Html.TextBoxFor(m => m.DateAdded, new { @class = "form-control" })
-        @Html.ValidationMessageFor(m => m.DateAdded)
-    </div>
-
-    <div class="form-group">
-        @Html.Label("Number Of Licenses")
-        @Html.TextBox("NumberOfLicenses", Model.GetNumberOfLicenses(), new { @class = "form-control" })
-        @Html.ValidationMessageFor(m => m.NumberOfLicenses)
-    </div>
+        <div class="form-group">
+            @Html.Label("Number Of Licenses")
+            @Html.TextBox("NumberOfLicenses", Model.GetNumberOfLicenses(), new { @class = "form-control", @readonly = "" })
+        </div>                
+    }
+    @Html.HiddenFor(m => m.MovieId)
+    @Html.HiddenFor(m => m.InventoryControlId)
     @Html.AntiForgeryToken()
     <br />
     <br />
