@@ -31,7 +31,9 @@ namespace VidlyCoreApp.Controllers
                     return View(model);
                 }
 
-                return RedirectToAction("ApplicationError", "Landing");
+                Logger.LogError("Failure in CustomersController:Details. Directing user with AppError result", null);
+
+                return RedirectToAction("ApplicationError", "Abort");
             }
             catch(Exception exception)
             {   
@@ -40,7 +42,7 @@ namespace VidlyCoreApp.Controllers
 
                 Logger.LogError(exception, "Exception in CustomersController:Details. Directing user with AppError result", null);
 
-                return RedirectToAction("ApplicationError", "Landing");
+                return RedirectToAction("ApplicationError", "Abort");
             }
         }
 
@@ -58,7 +60,7 @@ namespace VidlyCoreApp.Controllers
 
                 Logger.LogError(exception, "Exception in CustomersController:Update. Directing user with AppError result", null);
 
-                return RedirectToAction("ApplicationError", "Landing");
+                return RedirectToAction("ApplicationError", "Abort");
             }
         }
 
@@ -90,7 +92,7 @@ namespace VidlyCoreApp.Controllers
 
                 Logger.LogError(exception, "Exception in CustomersController:Save. Directing user with AppError result", null);
 
-                return RedirectToAction("ApplicationError", "Landing");
+                return RedirectToAction("ApplicationError", "Abort");
             }
 
             return RedirectToAction("Index", "Customers");

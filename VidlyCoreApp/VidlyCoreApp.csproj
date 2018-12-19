@@ -22,8 +22,12 @@
     <Folder Include="Views\Vendors\" />
     <Folder Include="Views\ContentProviders\" />
     <Folder Include="Models-Validators\" />
+    <Folder Include="Views\Abort\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Controllers\VidlyBaseController.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VidlyCoreBusinessRules\VidlyCoreBusinessRules.csproj" />
   </ItemGroup>
 </Project>

@@ -31,7 +31,7 @@ namespace VidlyCoreApp.Controllers
                     return View(model);
                 }
 
-                return RedirectToAction("ApplicationError", "Landing");
+                return RedirectToAction("ApplicationError", "Abort");
             }
             catch (Exception exception)
             {
@@ -59,7 +59,7 @@ namespace VidlyCoreApp.Controllers
 
                 Logger.LogError(exception, "Exception in MoviesController:Update. Directing user with AppError result", null);
 
-                return RedirectToAction("ApplicationError", "Landing");
+                return RedirectToAction("ApplicationError", "Abort");
             }
         }
 
@@ -78,7 +78,7 @@ namespace VidlyCoreApp.Controllers
 
                 Logger.LogError(exception, "Exception in MoviesController:New. Directing user with AppError result", null);
 
-                return RedirectToAction("ApplicationError", "Landing");
+                return RedirectToAction("ApplicationError", "Abort");
             }
         }
 
@@ -111,7 +111,7 @@ namespace VidlyCoreApp.Controllers
 
                 Logger.LogError(exception, "Exception in MoviesController:Save. Directing user with AppError result", null);
 
-                return RedirectToAction("ApplicationError", "Landing");
+                return RedirectToAction("ApplicationError", "Abort");
             }
         }
     }

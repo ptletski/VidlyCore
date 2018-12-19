@@ -18,7 +18,7 @@ namespace VidlyCoreApp.ViewModels
         {
             try
             {
-                _customer = _dbContext.Customers.Single(c => c.CustomerId == customerId);
+                _customer = _dbContext.Customers.Find(customerId);
             }
             catch(Exception exception)
             {
